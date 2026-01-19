@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "debug_toolbar",
     "rest_framework",
-    "core"
+    "core",
+    "feeds",
 ]
 
 AUTH_USER_MODEL = 'core.User'
