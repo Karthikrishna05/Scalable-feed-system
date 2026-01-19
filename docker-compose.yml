@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17
+    container_name: feed_postgres_db
+    environment:
+      POSTGRES_USER: postgresuser123
+      POSTGRES_PASSWORD: postgres121
+      POSTGRES_DB: feed_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - feed_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgresuser123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7
+    container_name: feed_redis_cache
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  feed_postgres_data:

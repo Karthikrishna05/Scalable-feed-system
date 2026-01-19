@@ -1,0 +1,7 @@
+Django
+djangorestframework
+celery
+redis
+psycopg[binary]
+django-redis
+faker
