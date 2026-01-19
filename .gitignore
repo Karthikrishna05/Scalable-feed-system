@@ -206,16 +206,39 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-venv/
+# --- 1. Python & Django Internals ---
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.log
 db.sqlite3
-.DS_Store
+media/
 
-.env
-vectorstore/
-__pycache__/
-*.pyc
-djangoenv/
+# --- 2. Virtual Environment (Heavy & OS Specific) ---
 venv/
+env/
+.venv/
+.env
+.envrc
+.venv
+env/
+venv/djangoenv/
+ENV/
+env.bak/
+venv.bak/
+
+
+# --- 3. Security (CRITICAL) ---
+# Contains your DB passwords. NEVER commit this.
+.env
+
+# --- 4. Docker Data Volumes ---
+# We don't want to commit the actual Postgres database files
+postgres_data/
+
+# --- 5. Operating System Junk ---
+.DS_Store
+Thumbs.db
+
+# --- 6. IDE Settings (Optional) ---
+.vscode/
+.idea/
