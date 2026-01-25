@@ -8,6 +8,12 @@ from core.models import Post
 # Create your views here.
 @api_view(['GET'])
 def feed_pull_based(request):
+    """
+    Standard 'Pull' Model.
+    1. Query DB to find who I follow.
+    2. Query DB to find posts by those people.
+    3. Sort by time (Expensive Join operation).
+    """
     from core.models import User
     if request.user.is_anonymous:
         request.user = User.objects.first()
