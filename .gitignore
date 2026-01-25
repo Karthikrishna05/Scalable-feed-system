@@ -242,3 +242,32 @@ Thumbs.db
 # --- 6. IDE Settings (Optional) ---
 .vscode/
 .idea/
+
+# --- 1. Python & Django Internals ---
+__pycache__/
+*.py[cod]
+*.log
+db.sqlite3
+media/
+
+# --- 2. Virtual Environment (Heavy & OS Specific) ---
+venv/
+env/
+.venv/
+djangoenv/
+
+# --- 3. Security (CRITICAL) ---
+# Contains your DB passwords. NEVER commit this.
+.env
+
+# --- 4. Docker Data Volumes ---
+# We don't want to commit the actual Postgres database files
+postgres_data/
+
+# --- 5. Operating System Junk ---
+.DS_Store
+Thumbs.db
+
+# --- 6. IDE Settings (Optional) ---
+.vscode/
+.idea/
