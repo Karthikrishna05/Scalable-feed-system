@@ -1,9 +1,13 @@
 from urllib import request
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .serializer import PostSerializer
-from core.models import Post
+from core.models import Post, User, Follow
+from operator import attrgetter
+from django.core.cache import cache
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -25,4 +29,23 @@ def feed_pull_based(request):
 
     #Serialize the posts
     serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+
+def hybrid_feed(request):
+    user = request.user
+    # Fetching precomputed feed from Redis for non-celebrity users
+    key=f"feed:{user.id}"
+    post_ids = cache.client.get_client().lrange(key, 0, 50)
+    pushed_posts = list(Post.objects.filter(id__in=post_ids).select_related('Author'))
+    # Fetching posts from celebrity users
+    celebrity_ids = Follow.objects.filter(follower_id=user.id, following__is_celebrity=True).values_list('following_id', flat=True)
+    celebrity_posts = list(Post.objects.filter(Author_id__in=celebrity_ids).select_related('Author').order_by('-created_at')[:50])
+    # Merging and sorting posts
+    full_feed= pushed_posts + celebrity_posts
+    sorted_feed = sorted(full_feed, key=attrgetter('created_at'), reverse=True)[:20]
+
+    serializer = PostSerializer(sorted_feed, many=True)
     return Response(serializer.data)
