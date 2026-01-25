@@ -1,13 +1,12 @@
 from urllib import request
 from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .serializer import PostSerializer
 from core.models import Post, User, Follow
 from operator import attrgetter
 from django.core.cache import cache
-
 
 # Create your views here.
 @api_view(['GET'])
@@ -32,7 +31,7 @@ def feed_pull_based(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 
 def hybrid_feed(request):
     user = request.user
@@ -48,4 +47,28 @@ def hybrid_feed(request):
     sorted_feed = sorted(full_feed, key=attrgetter('created_at'), reverse=True)[:20]
 
     serializer = PostSerializer(sorted_feed, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+
+def feed_push_only(request):
+    """
+    'Push-only' Model.
+    1. Fetch precomputed feed from Redis.
+    2. Fetch post details from DB.
+    """
+    user=request.user
+    key=f"feed:{user.id}"
+    post_ids=cache.client.get_client().lrange(key,0,20)
+    if not post_ids:
+        return Response([])
+    post_ids=[int(pid) for pid in post_ids]
+    posts=Post.objects.filter(id__in=post_ids).select_related('Author')
+
+    #Sorting posts based on the order in post_ids-as posts_ids from Redis are in correct order of recency and we might recieve posts in any order from DB
+    posts_dict={post.id:post for post in posts}
+    ordered_posts=[posts_dict[pid] for pid in post_ids if pid in posts_dict]
+
+    serializer=PostSerializer(ordered_posts,many=True)
     return Response(serializer.data)
