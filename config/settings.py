@@ -22,8 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-=h#c3&9a@8kqb8n5lslws^57dk(41q*-#dwp4w7w@tl$lqw=vj'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False  # False for load testing; True for development
 
 ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
@@ -37,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "debug_toolbar",
+    # "debug_toolbar",  # disabled for perf; re-enable with DEBUG=True
     "rest_framework",
     "core",
     "feeds",
@@ -49,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -87,6 +86,10 @@ DATABASES = {
         'PASSWORD': 'postgres121',
         'HOST': 'localhost',
         'PORT': 5432,
+        'CONN_MAX_AGE': 60,  # reuse connections instead of per-request handshake
+        'OPTIONS': {
+            'connect_timeout': 10,
+        },
     }
 }
 
@@ -144,7 +147,4 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

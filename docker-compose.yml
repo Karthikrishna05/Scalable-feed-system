@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:17
     container_name: feed_postgres_db
+    command: postgres -c max_connections=200 -c shared_buffers=256MB  # tuned for load testing
     environment:
       POSTGRES_USER: postgresuser123
       POSTGRES_PASSWORD: postgres121
